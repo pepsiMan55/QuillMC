@@ -1,0 +1,5 @@
+name: HelloPlugin
+version: 1.0.0
+main: com.example.hello.Main
+author: You
+description: Example Quill plugin — drop the built JAR into plugins/

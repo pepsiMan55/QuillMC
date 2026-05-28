@@ -1,0 +1,11 @@
+2026-05-28 16:29:20 [INFO] Starting minecraft server version 0.2.8
+2026-05-28 16:29:20 [INFO] Loading properties
+2026-05-28 16:29:20 [WARNING] server.properties does not exist
+2026-05-28 16:29:20 [INFO] Generating new properties file
+2026-05-28 16:29:20 [INFO] Starting Minecraft server on *:25565
+2026-05-28 16:29:20 [WARNING] Failed to load ban list: java.io.FileNotFoundException: banned-players.txt (The system cannot find the file specified)
+2026-05-28 16:29:20 [WARNING] Failed to load ip ban list: java.io.FileNotFoundException: banned-ips.txt (The system cannot find the file specified)
+2026-05-28 16:29:20 [WARNING] Failed to load ip ban list: java.io.FileNotFoundException: ops.txt (The system cannot find the file specified)
+2026-05-28 16:29:20 [INFO] Preparing level "world"
+2026-05-28 16:29:20 [INFO] Preparing start region
+2026-05-28 16:29:25 [INFO] Done! For help, type "help" or "?"

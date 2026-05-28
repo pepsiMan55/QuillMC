@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs '../../build/libs'
+    }
+}
+
+dependencies {
+    compileOnly files('../../build/libs/quill-api.jar')
+}
+
+jar {
+    archiveBaseName = 'HelloPlugin'
+    from('src/main/resources') {
+        include 'quill-plugin.yml'
+    }
+}

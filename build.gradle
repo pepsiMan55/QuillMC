@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+}
+
+group = 'net.sopepsi'
+version = '1.2.6-1'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('jar') {
+    archiveBaseName = 'quill'
+    manifest {
+        attributes 'Main-Class': 'net.minecraft.server.QuillMinecraftServer'
+    }
+    from sourceSets.main.output
+}
+
+tasks.register('apiJar', Jar) {
+    archiveBaseName = 'quill-api'
+    archiveClassifier = ''
+    from(sourceSets.main.output) {
+        include 'net/sopepsi/api/**'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.register('quillInit', JavaExec) {
+    dependsOn classes
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'net.sopepsi.tools.QuillInit'
+    args = ['init', findProperty('pluginName') ?: 'MyPlugin',
+            findProperty('pluginPackage') ?: 'com.example.myplugin',
+            findProperty('pluginAuthor') ?: 'Developer']
+    workingDir = file(findProperty('initDir') ?: rootProject.projectDir)
+}
