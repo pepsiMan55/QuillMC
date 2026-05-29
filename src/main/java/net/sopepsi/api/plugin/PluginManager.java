@@ -36,6 +36,19 @@ public final class PluginManager {
 		}
 	}
 
+	private void safeCrash(String stage, LoadedPlugin plugin, Throwable t) {
+    plugin.getLogger().log(Level.SEVERE,
+            "Plugin crashed during " + stage + " -> disabling plugin: "
+                    + plugin.getDescription().getName(),
+            t);
+
+    try {
+        plugin.getInstance().onDisable();
+    } catch (Throwable ignored) {}
+
+    plugin.setEnabled(false);
+}
+
 	public void loadPlugins() {
 		this.loaded.clear();
 		
@@ -62,26 +75,37 @@ public final class PluginManager {
 
 		java.util.Set<String> loadedNames = new java.util.HashSet<String>();
 		int count = 0;
-		for(File jarFile : files) {
-			try {
-				LoadedPlugin plugin = loadJar(jarFile);
-				if(plugin != null) {
-					String pluginName = plugin.getDescription().getName();
-					
-					// Check for duplicates
-					if(loadedNames.contains(pluginName)) {
-						this.logger.warning("SKIPPING duplicate plugin: " + pluginName + " from " + jarFile.getName());
-						continue;
-					}
-					
-					loadedNames.add(pluginName);
-					this.loaded.add(plugin);
-					++count;
-				}
-			} catch (Exception e) {
-				this.logger.log(Level.SEVERE, "Failed to load plugin from " + jarFile.getName(), e);
-			}
-		}
+		for (File jarFile : files) {
+    LoadedPlugin plugin = null;
+
+    try {
+        plugin = loadJar(jarFile);
+
+        if (plugin == null) continue;
+
+        String pluginName = plugin.getDescription().getName();
+
+        if (loadedNames.contains(pluginName)) {
+            this.logger.warning("SKIPPING duplicate plugin: " + pluginName);
+            continue;
+        }
+
+        loadedNames.add(pluginName);
+        this.loaded.add(plugin);
+        ++count;
+
+    } catch (Throwable t) {
+        this.logger.log(Level.SEVERE,
+                "Failed to load plugin from " + jarFile.getName(), t);
+
+        // ensure broken plugin never continues
+        if (plugin != null) {
+            try {
+                plugin.getInstance().onDisable();
+            } catch (Throwable ignored) {}
+        }
+    }
+}
 	}
 
 	private LoadedPlugin loadJar(File jarFile) throws Exception {
@@ -174,7 +198,6 @@ public final class PluginManager {
 				continue;
 			}
 			try {
-				loadedPlugin.getLogger().info("Disabling...");
 				loadedPlugin.getInstance().onDisable();
 				this.server.getEventBus().unregister(loadedPlugin.getInstance());
 				loadedPlugin.setEnabled(false);

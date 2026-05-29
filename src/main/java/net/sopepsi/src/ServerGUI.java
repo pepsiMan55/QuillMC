@@ -1,8 +1,6 @@
 package net.minecraft.src;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.*;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -25,7 +23,14 @@ public class ServerGUI extends JComponent implements ICommandListener {
 		}
 
 		ServerGUI var1 = new ServerGUI(var0);
-		JFrame var2 = new JFrame("Minecraft server");
+		JFrame var2 = new JFrame("Quill Minecraft server");
+
+		Image icon = Toolkit.getDefaultToolkit().getImage(
+				ServerGUI.class.getResource("/icon.png")
+		);
+
+		var2.setIconImage(icon);
+
 		var2.add(var1);
 		var2.pack();
 		var2.setLocationRelativeTo((Component)null);

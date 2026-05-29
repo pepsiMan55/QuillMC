@@ -46,7 +46,7 @@ import net.sopepsi.tools.QuillInit;
 
 public class QuillMinecraftServer implements ICommandListener, Runnable {
 	public static final Logger logger = Logger.getLogger("Quill");
-	public static final String VERSION = "Quill a1.2.6-1 (2026-5-28)";
+	public static final String VERSION = "Quill a1.2.6-3 (2026-5-28)";
 
 	/** Legacy command cooldown map (unused in current tree). */
 	public static HashMap commandCooldowns = new HashMap();
@@ -118,8 +118,8 @@ public class QuillMinecraftServer implements ICommandListener, Runnable {
 		commandReader.start();
 		ConsoleLogManager.init();
 		logger.info("Starting " + VERSION + " for Minecraft a1.2.6");
-		logger.warning("**** WARNING ****");
-		logger.warning("This is the very first build of Quill, please report any issues you find to the discord or github. This will expand to more than Alpha 1.2.6, this is just the easiest version to decompile and remake from scratch.");
+		logger.warning("**** WARNING");
+		logger.warning("API Has been updated to 0.0.2, check GitHub for more info!");
 
 		if(Runtime.getRuntime().maxMemory() / 1024L / 1024L < 512L) {
 			logger.warning("**** NOT ENOUGH RAM!");

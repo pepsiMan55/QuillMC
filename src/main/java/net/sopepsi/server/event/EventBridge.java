@@ -9,10 +9,15 @@ import net.sopepsi.api.event.player.PlayerQuitEvent;
 import net.sopepsi.api.player.Player;
 import net.sopepsi.server.player.PlayerImpl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Fires API events from Minecraft internals.
  */
 public final class EventBridge {
+
+	private static final Map<String, double[]> lastPos = new HashMap<>();
 
 	private EventBridge() {
 	}
@@ -59,5 +64,56 @@ public final class EventBridge {
 			return null;
 		}
 		return event.getMessage();
+	}
+
+	public static void firePlayerMove(QuillMinecraftServer server, EntityPlayerMP entity) {
+
+		Server api = server.getApi();
+
+		if(api == null) {
+			return;
+		}
+
+		Player player = new PlayerImpl(entity, api);
+
+		String key = player.getName().toLowerCase();
+
+		double newX = player.getX();
+		double newY = player.getY();
+		double newZ = player.getZ();
+
+		double[] last = lastPos.get(key);
+
+		// first movement cache
+		if(last == null) {
+			lastPos.put(key, new double[]{newX, newY, newZ});
+			return;
+		}
+
+		double fromX = last[0];
+		double fromY = last[1];
+		double fromZ = last[2];
+
+		// only fire if player ACTUALLY moved
+		if(fromX == newX && fromY == newY && fromZ == newZ) {
+			return;
+		}
+
+		// update cache
+		lastPos.put(key, new double[]{newX, newY, newZ});
+
+		net.sopepsi.api.event.player.PlayerMoveEvent event =
+				new net.sopepsi.api.event.player.PlayerMoveEvent(
+						player,
+						fromX, fromY, fromZ,
+						newX, newY, newZ
+				);
+
+		try {
+			api.getEventBus().call(event);
+		} catch(Throwable t) {
+			server.log("[Quill] Error while firing PlayerMoveEvent");
+			t.printStackTrace();
+		}
 	}
 }

@@ -5,17 +5,17 @@ package net.sopepsi.api.player;
  */
 public interface Player {
 
-	String getName();
+    String getName();
 
-	void sendMessage(String message);
+    void sendMessage(String message);
 
-	boolean isOp();
+    boolean isOp();
 
-	void kick(String reason);
+    void kick(String reason);
 
-	double getX();
+    double getX();
 
-	double getY();
+    double getY();
 
-	double getZ();
+    double getZ();
 }

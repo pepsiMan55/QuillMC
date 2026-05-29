@@ -6,8 +6,8 @@ group = 'net.sopepsi'
 
 // Define separate versions
 ext {
-    apiVersion = '0.0.1'
-    serverVersion = '1.2.6-2'
+    apiVersion = '0.0.2'
+    serverVersion = '1.2.6-3'
 }
 
 // Use the server version as default for the project
