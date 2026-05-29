@@ -167,6 +167,7 @@ public class EntityItem extends Entity {
 	public void writeEntityToNBT(NBTTagCompound var1) {
 		var1.setShort("Health", (short)((byte)this.health));
 		var1.setShort("Age", (short)this.field_9169_b);
+		var1.setShort("Damage", (short)this.itemDamage);
 		var1.setCompoundTag("Item", this.item.writeToNBT(new NBTTagCompound()));
 	}
 
