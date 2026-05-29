@@ -92,7 +92,7 @@ repositories {
     mavenCentral()
 
     maven {
-        url = uri("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-1.2.6.jar")
+        url = uri("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-0.0.1.jar")
     }
 }
 
@@ -112,7 +112,7 @@ java {
 
 ```kotlin
 repositories {
-    maven("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-1.2.6.jar")
+    maven("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-0.0.1.jar")
 }
 
 dependencies {
@@ -127,7 +127,7 @@ dependencies {
 ```xml
 <repository>
     <id>quill</id>
-    <url>https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-1.2.6.jar</url>
+    <url>https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-1/quill-api-0.0.1.jar</url>
 </repository>
 ```
 
