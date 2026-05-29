@@ -88,28 +88,40 @@ Plugin developers do **not** need to manually download API jars.
 ### `build.gradle`
 
 ```gradle
-group = 'net.sopepsi'
-version = '1.2.6-3'
+plugins {
+    id 'java'
+}
+
+group = 'me.quill'
+version = '1.0'
 
 repositories {
     mavenCentral()
+
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
     implementation files('libs/quill-api-0.0.2.jar')
 }
 
-tasks.register("downloadQuill") {
+tasks.register('downloadQuillAPI') {
     doLast {
         def url = "https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-3/quill-api-0.0.2.jar"
         def file = file("libs/quill-api-0.0.2.jar")
 
         if (!file.exists()) {
             file.parentFile.mkdirs()
-            new URL(url).withInputStream { i ->
-                file.withOutputStream { it << i }
+            new URL(url).withInputStream { input ->
+                file.withOutputStream { output ->
+                    output << input
+                }
             }
-            println "Downloaded Quill API"
+            println "Downloaded Quill API!"
+        } else {
+            println "Quill API already exists."
         }
     }
 }
@@ -120,28 +132,40 @@ tasks.register("downloadQuill") {
 ## Kotlin DSL
 
 ```kotlin
-group = 'net.sopepsi'
-version = '1.2.6-3'
+plugins {
+    id 'java'
+}
 
-configurations {
-    quill
+group = 'me.quill'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
-    quill files('libs/quill-api-0.0.2.jar')
+    implementation files('libs/quill-api-0.0.2.jar')
 }
 
-tasks.register("downloadQuill") {
+tasks.register('downloadQuillAPI') {
     doLast {
         def url = "https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-3/quill-api-0.0.2.jar"
         def file = file("libs/quill-api-0.0.2.jar")
 
         if (!file.exists()) {
             file.parentFile.mkdirs()
-            new URL(url).withInputStream { i ->
-                file.withOutputStream { it << i }
+            new URL(url).withInputStream { input ->
+                file.withOutputStream { output ->
+                    output << input
+                }
             }
-            println "Downloaded Quill API"
+            println "Downloaded Quill API!"
+        } else {
+            println "Quill API already exists."
         }
     }
 }
