@@ -91,12 +91,12 @@ Plugin developers do **not** need to manually download API jars.
 group = 'net.sopepsi'
 version = '1.2.6-3'
 
-configurations {
-    quill
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    quill files('libs/quill-api-0.0.2.jar')
+    implementation files('libs/quill-api-0.0.2.jar')
 }
 
 tasks.register("downloadQuill") {
