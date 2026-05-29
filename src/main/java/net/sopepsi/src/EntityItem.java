@@ -174,6 +174,7 @@ public class EntityItem extends Entity {
 	public void readEntityFromNBT(NBTTagCompound var1) {
 		this.health = var1.getShort("Health") & 255;
 		this.field_9169_b = var1.getShort("Age");
+		this.itemDamage = var1.getShort("Damage"); // Forgot to add when I added itemdamage...
 		NBTTagCompound var2 = var1.getCompoundTag("Item");
 		this.item = new ItemStack(var2);
 	}
