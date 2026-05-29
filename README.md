@@ -88,21 +88,30 @@ Plugin developers do **not** need to manually download API jars.
 ### `build.gradle`
 
 ```gradle
-repositories {
-    mavenCentral()
+group = 'net.sopepsi'
+version = '1.2.6-3'
 
-    maven {
-        url = uri("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-2/quill-api-0.0.1.jar")
-    }
+configurations {
+    quill
 }
 
 dependencies {
-    compileOnly "net.sopepsi:quill-api:1.2.6-1"
+    quill files('libs/quill-api-0.0.2.jar')
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+tasks.register("downloadQuill") {
+    doLast {
+        def url = "https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-3/quill-api-0.0.2.jar"
+        def file = file("libs/quill-api-0.0.2.jar")
+
+        if (!file.exists()) {
+            file.parentFile.mkdirs()
+            new URL(url).withInputStream { i ->
+                file.withOutputStream { it << i }
+            }
+            println "Downloaded Quill API"
+        }
+    }
 }
 ```
 
@@ -111,12 +120,30 @@ java {
 ## Kotlin DSL
 
 ```kotlin
-repositories {
-    maven("https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-2/quill-api-0.0.1.jar")
+group = 'net.sopepsi'
+version = '1.2.6-3'
+
+configurations {
+    quill
 }
 
 dependencies {
-    compileOnly("net.sopepsi:quill-api:1.2.6-1")
+    quill files('libs/quill-api-0.0.2.jar')
+}
+
+tasks.register("downloadQuill") {
+    doLast {
+        def url = "https://github.com/pepsiMan55/QuillMC/releases/download/a1.2.6-3/quill-api-0.0.2.jar"
+        def file = file("libs/quill-api-0.0.2.jar")
+
+        if (!file.exists()) {
+            file.parentFile.mkdirs()
+            new URL(url).withInputStream { i ->
+                file.withOutputStream { it << i }
+            }
+            println "Downloaded Quill API"
+        }
+    }
 }
 ```
 
