@@ -4,8 +4,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 import net.sopepsi.api.Logger;
@@ -21,6 +23,12 @@ public final class EventBusImpl implements EventBus {
 	private static final Logger LOG = new Logger("EventBus");
 
 	private final List<RegisteredListener> handlers = new ArrayList<RegisteredListener>();
+	private final Map<Class<?>, List<RegisteredListener>> handlersByEventType = new HashMap<Class<?>, List<RegisteredListener>>();
+	private final Comparator<RegisteredListener> priorityComparator = new Comparator<RegisteredListener>() {
+		public int compare(RegisteredListener a, RegisteredListener b) {
+			return a.priority.ordinal() - b.priority.ordinal();
+		}
+	};
 
 	@Override
 	public void register(Listener listener, Plugin plugin) {
@@ -37,7 +45,19 @@ public final class EventBusImpl implements EventBus {
 			if(!method.isAccessible()) {
 				method.setAccessible(true);
 			}
-			this.handlers.add(new RegisteredListener(plugin, listener, method, params[0], annotation.priority(), annotation.ignoreCancelled()));
+			
+			RegisteredListener registered = new RegisteredListener(plugin, listener, method, params[0], annotation.priority(), annotation.ignoreCancelled());
+			this.handlers.add(registered);
+			
+			// Add to event type cache and sort
+			Class<?> eventType = registered.eventType;
+			List<RegisteredListener> eventHandlers = this.handlersByEventType.get(eventType);
+			if(eventHandlers == null) {
+				eventHandlers = new ArrayList<RegisteredListener>();
+				this.handlersByEventType.put(eventType, eventHandlers);
+			}
+			eventHandlers.add(registered);
+			Collections.sort(eventHandlers, this.priorityComparator);
 		}
 	}
 
@@ -45,24 +65,27 @@ public final class EventBusImpl implements EventBus {
 	public void unregister(Plugin plugin) {
 		Iterator<RegisteredListener> iterator = this.handlers.iterator();
 		while(iterator.hasNext()) {
-			if(iterator.next().plugin == plugin) {
+			RegisteredListener listener = iterator.next();
+			if(listener.plugin == plugin) {
 				iterator.remove();
+				// Also remove from event type cache
+				List<RegisteredListener> eventHandlers = this.handlersByEventType.get(listener.eventType);
+				if(eventHandlers != null) {
+					eventHandlers.remove(listener);
+				}
 			}
 		}
 	}
 
 	@Override
 	public void call(Event event) {
-		List<RegisteredListener> copy = new ArrayList<RegisteredListener>(this.handlers);
-		Collections.sort(copy, new Comparator<RegisteredListener>() {
-			public int compare(RegisteredListener a, RegisteredListener b) {
-				return a.priority.ordinal() - b.priority.ordinal();
-			}
-		});
-		for(RegisteredListener entry : copy) {
-			if(!entry.eventType.isAssignableFrom(event.getClass())) {
-				continue;
-			}
+		// Get pre-sorted handlers for this event type (no sorting on call)
+		List<RegisteredListener> eventHandlers = this.handlersByEventType.get(event.getClass());
+		if(eventHandlers == null || eventHandlers.isEmpty()) {
+			return;
+		}
+		
+		for(RegisteredListener entry : eventHandlers) {
 			if(event.isCancelled() && entry.ignoreCancelled) {
 				continue;
 			}

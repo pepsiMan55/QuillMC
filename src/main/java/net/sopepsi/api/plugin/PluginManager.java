@@ -28,6 +28,7 @@ public final class PluginManager {
 		this.server = server;
 		this.pluginsFolder = pluginsFolder;
 		this.logger = server.getLogger();
+		
 		if(!pluginsFolder.exists()) {
 			if(pluginsFolder.mkdirs()) {
 				this.logger.info("Created plugins folder: " + pluginsFolder.getAbsolutePath());
@@ -37,51 +38,67 @@ public final class PluginManager {
 
 	public void loadPlugins() {
 		this.loaded.clear();
+		
 		if(!this.pluginsFolder.isDirectory()) {
 			this.logger.warning("Plugin folder is not a directory: " + this.pluginsFolder.getAbsolutePath());
 			return;
 		}
 
-		File[] jars = this.pluginsFolder.listFiles();
-		if(jars == null || jars.length == 0) {
-			this.logger.info("No plugins found in " + this.pluginsFolder.getAbsolutePath() + " (drop .jar files here)");
+		File[] files = this.pluginsFolder.listFiles(new java.io.FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.toLowerCase().endsWith(".jar");
+			}
+		});
+
+		if(files == null) {
+			this.logger.warning("Could not read plugin folder");
 			return;
 		}
 
-		int count = 0;
-		for(File jar : jars) {
-			if(!jar.isFile() || !jar.getName().toLowerCase().endsWith(".jar")) {
-				continue;
-			}
-			try {
-				LoadedPlugin plugin = loadJar(jar);
-				if(plugin != null) {
-					this.loaded.add(plugin);
-					++count;
-					this.logger.info("Loaded plugin " + plugin.getDescription().getName() + " v" + plugin.getDescription().getVersion()
-							+ " from " + jar.getName());
-				}
-			} catch (Exception e) {
-				this.logger.log(Level.SEVERE, "Failed to load plugin from " + jar.getName(), e);
-			}
+		if(files.length == 0) {
+			this.logger.info("No plugin .jar files found in " + this.pluginsFolder.getAbsolutePath());
+			return;
 		}
 
-		this.logger.info("Loaded " + count + " plugin(s) from " + this.pluginsFolder.getAbsolutePath());
+		java.util.Set<String> loadedNames = new java.util.HashSet<String>();
+		int count = 0;
+		for(File jarFile : files) {
+			try {
+				LoadedPlugin plugin = loadJar(jarFile);
+				if(plugin != null) {
+					String pluginName = plugin.getDescription().getName();
+					
+					// Check for duplicates
+					if(loadedNames.contains(pluginName)) {
+						this.logger.warning("SKIPPING duplicate plugin: " + pluginName + " from " + jarFile.getName());
+						continue;
+					}
+					
+					loadedNames.add(pluginName);
+					this.loaded.add(plugin);
+					++count;
+				}
+			} catch (Exception e) {
+				this.logger.log(Level.SEVERE, "Failed to load plugin from " + jarFile.getName(), e);
+			}
+		}
 	}
 
 	private LoadedPlugin loadJar(File jarFile) throws Exception {
 		PluginDescription description = readDescription(jarFile);
 		if(description == null) {
-			this.logger.warning("Skipping " + jarFile.getName() + ": missing quill-plugin.yml");
+			this.logger.warning("Skipping " + jarFile.getName() + ": missing plugin descriptor");
 			return null;
 		}
 
 		URL jarUrl = jarFile.toURI().toURL();
 		PluginClassLoader classLoader = new PluginClassLoader(new URL[]{jarUrl}, getClass().getClassLoader());
+
 		Class<?> mainClass = Class.forName(description.getMainClass(), true, classLoader);
 		Object instance = mainClass.newInstance();
+		
 		if(!(instance instanceof Plugin)) {
-			throw new IllegalStateException("Main class must implement Plugin: " + description.getMainClass());
+			throw new IllegalStateException("Main class " + description.getMainClass() + " must implement Plugin interface");
 		}
 
 		Plugin plugin = (Plugin)instance;
@@ -93,6 +110,7 @@ public final class PluginManager {
 		JarFile jar = new JarFile(jarFile);
 		try {
 			String[] paths = {"quill-plugin.yml", "plugin.yml", "META-INF/quill-plugin.yml"};
+			
 			for(String path : paths) {
 				JarEntry entry = jar.getJarEntry(path);
 				if(entry != null) {
@@ -169,5 +187,17 @@ public final class PluginManager {
 
 	public List<LoadedPlugin> getLoadedPlugins() {
 		return Collections.unmodifiableList(new ArrayList<LoadedPlugin>(this.loaded));
+	}
+
+	public int getLoadedPluginCount() {
+		return this.loaded.size();
+	}
+
+	public List<String> getLoadedPluginNames() {
+		List<String> names = new ArrayList<String>();
+		for(LoadedPlugin plugin : this.loaded) {
+			names.add(plugin.getDescription().getName());
+		}
+		return names;
 	}
 }

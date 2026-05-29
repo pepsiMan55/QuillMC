@@ -3,7 +3,15 @@ plugins {
 }
 
 group = 'net.sopepsi'
-version = '1.2.6-1'
+
+// Define separate versions
+ext {
+    apiVersion = '0.0.1'
+    serverVersion = '1.2.6-2'
+}
+
+// Use the server version as default for the project
+version = serverVersion
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -22,6 +30,7 @@ dependencies {
 
 tasks.named('jar') {
     archiveBaseName = 'quill'
+    archiveVersion = serverVersion  // Explicitly set server version
     manifest {
         attributes 'Main-Class': 'net.minecraft.server.QuillMinecraftServer'
     }
@@ -30,6 +39,7 @@ tasks.named('jar') {
 
 tasks.register('apiJar', Jar) {
     archiveBaseName = 'quill-api'
+    archiveVersion = apiVersion  // Use API version
     archiveClassifier = ''
     from(sourceSets.main.output) {
         include 'net/sopepsi/api/**'

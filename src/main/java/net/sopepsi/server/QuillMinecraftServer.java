@@ -140,6 +140,7 @@ public class QuillMinecraftServer implements ICommandListener, Runnable {
 		this.pluginsEnabled = this.propertyManagerObj.getBooleanProperty(ServerProperties.PLUGINS_ENABLED, true);
 		String pluginFolderName = this.propertyManagerObj.getStringProperty(ServerProperties.PLUGIN_FOLDER, "plugins");
 		this.pluginsFolder = new File(pluginFolderName);
+		
 		this.whitelistFile = new File("whitelist.txt");
 		this.loadWhitelist();
 
@@ -178,6 +179,20 @@ public class QuillMinecraftServer implements ICommandListener, Runnable {
 		if(this.pluginsEnabled) {
 			this.pluginManager = new PluginManager(this.api, this.pluginsFolder);
 			this.pluginManager.loadPlugins();
+			
+			int pluginCount = this.pluginManager.getLoadedPluginCount();
+			logger.info("[PluginInitializerManager] Initialized " + pluginCount + " plugin" + (pluginCount != 1 ? "s" : ""));
+			
+			if(pluginCount > 0) {
+				java.util.List<String> pluginNames = this.pluginManager.getLoadedPluginNames();
+				StringBuilder sb = new StringBuilder("[PluginInitializerManager] Quill plugins (" + pluginCount + "):");
+				for(String name : pluginNames) {
+					sb.append("\n - ").append(name);
+				}
+				logger.info(sb.toString());
+			} else {
+				logger.info("[PluginInitializerManager] Quill plugins (0):");
+			}
 		} else {
 			logger.info("Plugins disabled in server.properties");
 			this.pluginsFolder.mkdirs();
