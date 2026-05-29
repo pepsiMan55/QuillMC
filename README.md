@@ -1,8 +1,4 @@
-# Quill
-
-[![Version](https://img.shields.io/badge/version-1.2.6--1-344ceb)](https://craftmen.uk/quill-api)
-[![Java](https://img.shields.io/badge/java-8-orange)](https://adoptium.net/)
-[![License](https://img.shields.io/github/license/pepsiMan55/QuillMC)](https://github.com/pepsiMan55/QuillMC)
+# Quill [![Version](https://img.shields.io/badge/version-1.2.6--1-344ceb)](https://craftmen.uk/quill-api) [![Java](https://img.shields.io/badge/java-8-orange)](https://adoptium.net/) [![License](https://img.shields.io/github/license/pepsiMan55/QuillMC)](https://github.com/pepsiMan55/QuillMC)
 
 ---
 
